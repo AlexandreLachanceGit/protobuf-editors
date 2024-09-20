@@ -1,0 +1,138 @@
+#![enable(unwrap_variant_newtypes)]
+#![enable(implicit_some)]
+
+LanguageDefinition (
+    language: (
+        name: "protobuf",
+        file_extensions: [ "proto" ],
+        library_paths: (
+            env_variables: [],
+            linux: [],
+            windows: [],
+            macos: [],
+        ),
+    ),
+    keywords: [ 
+        "import", 
+        "weak", 
+        "public", 
+        "package", 
+        "option", 
+        "enum", 
+        "message", 
+        "optional", 
+        "repeated", 
+        "oneof", 
+        "map", 
+        "reserved", 
+        "to", 
+        "max", 
+        "service", 
+        "rpc", 
+        "stream", 
+    ],
+    symbol_types: [
+        (name: "Enum", completion_type: Class, highlight_type: Type),
+        (name: "Message", completion_type: Class, highlight_type: Function),
+        (name: "OneOf", completion_type: Class, highlight_type: Variable),
+        (name: "Service", completion_type: Class, highlight_type: Method),
+    ],
+    global_ast_rules: [
+        (query: Kind("comment"), rule: Direct("Comment"), highlight_type: Comment),
+    ],
+    ast_rules: [
+        Rule(
+            node_name: "Root", // Name of Rule (required)
+            is_scope: true, // defaults to false
+            children: [
+                (query: Kind("import"), rule: Rule("Import")),
+                (query: Kind("package"), rule: Rule("Package")),
+                (query: Kind("option"), rule: Rule("Option")),
+                (query: Kind("enum"), rule: Rule("Enum")),
+                (query: Kind("message"), rule: Rule("Message")),
+                (query: Kind("service"), rule: Rule("Service")),
+            ]
+        ),
+        Rule(
+            node_name: "Import",
+            children: [
+                (query: Field("path"), rule: Direct("String"), highlight_type: String), 
+            ]
+        ),
+        Rule(
+            node_name: "Package",
+            children: [
+                (query: Kind("full_ident"), rule: Direct("Name")), 
+            ]
+        ),
+        Rule(
+            node_name: "Option",
+            children: [
+                (query: Kind("identifier"), rule: Direct("Name")), 
+                (query: Kind("full_ident"), rule: Direct("Name")), 
+            ]
+        ),
+        Rule(
+            node_name: "Enum",
+            is_scope: true,
+            symbol: Init(type: "Enum", name_node: "Name"),
+            children: [
+                (query: Kind("enum_name"), rule: Direct("Name")), 
+                (query: Kind("enum_body"), rule: Rule("EnumBody")), 
+            ]
+        ),
+        Rule(
+            node_name: "EnumBody",
+            children: [
+                (query: Kind("option"), rule: Direct("Option")), 
+                (query: Kind("enum_field"), rule: Direct("Option")), 
+            ]
+        ),
+        Rule(
+            node_name: "Message",
+            is_scope: true,
+            symbol: Init(type: "Message", name_node: "Name"),
+            children: [
+                (query: Kind("message_name"), rule: Direct("Name")), 
+                (query: Kind("message_body"), rule: Rule("MessageBody")), 
+            ]
+        ),
+        Rule(
+            node_name: "MessageBody",
+            children: [
+                (query: Kind("field"), rule: Rule("Field")), 
+                (query: Kind("message"), rule: Rule("Message")), 
+                (query: Kind("enum"), rule: Rule("Enum")), 
+                (query: Kind("option"), rule: Rule("Option")), 
+                (query: Kind("oneof"), rule: Rule("OneOf")), 
+            ]
+        ),        
+        Rule(
+            node_name: "Service",
+            is_scope: true,
+            symbol: Init(type: "Service", name_node: "Name"),
+            children: [
+                (query: Kind("service_name"), rule: Direct("Name")), 
+            ]
+        ),
+        Rule(
+            node_name: "Field",
+            children: [
+                (query: Kind("type"), rule: Rule("Type")), 
+            ]
+        ),
+        Rule(
+            node_name: "OneOf",
+            is_scope: true,
+            symbol: Init(type: "OneOf", name_node: "Name"),
+            children: [
+                (query: Kind("identifier"), rule: Direct("Name")), 
+            ]
+        ),
+        Rule(
+            node_name: "Type",
+            symbol: Usage,
+        ),
+    ]
+)
+

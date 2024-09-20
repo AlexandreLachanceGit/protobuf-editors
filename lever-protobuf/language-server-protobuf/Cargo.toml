@@ -1,0 +1,8 @@
+[package]
+name = "protobuf-language-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lever_framework = { git = "https://github.com/ace-design/lever-framework" }
+tree-sitter-proto = { path ="../tree-sitter-proto"}
