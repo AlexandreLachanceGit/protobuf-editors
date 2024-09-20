@@ -1,0 +1,3 @@
+[submodule "lever-protobuf/tree-sitter-proto"]
+	path = lever-protobuf/tree-sitter-proto
+	url = git@github.com:AlexandreLachanceGit/tree-sitter-proto.git
